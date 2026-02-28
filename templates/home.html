@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SQL Bot</title>
+    <style>
+body {
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    font-family: Arial, sans-serif;
+    background-color: #1e1e1e; /* dark GPT-style background */
+    color: #fff;
+}
+
+.container {
+    padding: 20px;
+    text-align: center;
+}
+
+input {
+    padding: 12px;
+    width: 350px;
+    font-size: 16px;
+    margin-right: 8px;
+}
+
+button {
+    padding: 12px 18px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+#response {
+    margin-top: 20px;
+    white-space: pre-wrap;
+    text-align: left;
+    max-width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+    background: #2a2a2a;
+    padding: 15px;
+    border-radius: 8px;
+    overflow-x: auto;
+    max-height: 60vh; /* make it scrollable */
+}
+
+/* Table styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    border: 1px solid #444;
+    padding: 8px;
+}
+
+th {
+    background-color: #333;
+}
+
+tr:nth-child(even) {
+    background-color: #2c2c2c;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Ask SQL Bot</h2>
+
+    <input type="text" id="queryInput" placeholder="Enter SQL query..." required />
+    <button onclick="sendQuery()">Run</button>
+
+    <div id="response"></div>
+</div>
+
+<!-- <script>
+async function sendQuery() {
+    try {
+        const queryValue = document.getElementById("queryInput").value;
+
+        const response = await fetch("/query", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                question: queryValue
+            })
+        });
+
+        const data = await response.json();
+
+        const responseDiv = document.getElementById("response");
+
+        if (data.error) {
+            responseDiv.innerText = "Error: " + data.error;
+        } else {
+            responseDiv.innerText =
+                JSON.stringify(data.result, null, 2);
+        }
+
+    } catch (err) {
+        console.error(err);
+        document.getElementById("response").innerText =
+            "Something broke. Check console.";
+    }
+}
+</script> -->
+
+
+
+<script>
+async function sendQuery() {
+    try {
+        const queryValue = document.getElementById("queryInput").value;
+
+        const response = await fetch("/query", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ question: queryValue })
+        });
+
+        const data = await response.json();
+        const responseDiv = document.getElementById("response");
+        responseDiv.innerHTML = ""; // Clear previous output
+
+        if (data.error) {
+            responseDiv.innerHTML = `<span style="color:red">Error: ${data.error}</span>`;
+            return;
+        }
+
+        const result = data.result;
+
+        // If it's a simple array, render as table
+        if (Array.isArray(result) && result.length > 0 && Array.isArray(result[0])) {
+            const table = document.createElement("table");
+            table.style.width = "100%";
+            table.style.borderCollapse = "collapse";
+
+            // Auto-generate headers based on first row length
+            const headerRow = document.createElement("tr");
+            for (let i = 0; i < result[0].length; i++) {
+                const th = document.createElement("th");
+                th.innerText = `Col ${i+1}`;
+                th.style.border = "1px solid #ddd";
+                th.style.padding = "8px";
+                th.style.backgroundColor = "#f0f0f0";
+                headerRow.appendChild(th);
+            }
+            table.appendChild(headerRow);
+
+            // Add rows
+            result.forEach(row => {
+                const tr = document.createElement("tr");
+                row.forEach(cell => {
+                    const td = document.createElement("td");
+                    td.innerText = cell;
+                    td.style.border = "1px solid #ddd";
+                    td.style.padding = "8px";
+                    tr.appendChild(td);
+                });
+                table.appendChild(tr);
+            });
+
+            responseDiv.appendChild(table);
+        } else {
+            // Fallback: show as preformatted JSON
+            responseDiv.innerHTML = `<pre>${JSON.stringify(result, null, 2)}</pre>`;
+        }
+
+    } catch (err) {
+        console.error(err);
+        document.getElementById("response").innerHTML =
+            `<span style="color:red">Something broke. Check console.</span>`;
+    }
+}
+</script>
+</body>
+</html>
