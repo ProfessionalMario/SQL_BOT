@@ -32,8 +32,7 @@ class QueryResponse(BaseModel):
 async def root(request: Request):
     return templates.TemplateResponse("home3.html", {"request": request})
 
-
-@app.post("/query", response_model=QueryResponse)
+@app.post("/query")
 async def query_endpoint(request: QueryRequest):
     try:
         total_start = time.perf_counter()
@@ -48,30 +47,50 @@ async def query_endpoint(request: QueryRequest):
         # ---- Model inference timing ----
         infer_start = time.perf_counter()
         model_output = query_model(prompt)
-
-        # METHOD 1: String find() - Simple, no regex
-        start_action = model_output.find('"action": "') + 11
-        end_action = model_output.find('"', start_action)
-        action = model_output[start_action:end_action].strip()
-
-        start_query = model_output.find('"query": "') + 10
-        end_query = model_output.find('"', start_query + 1)  # ← Key fix!
-        model_query = model_output[start_query:end_query].strip()
-
         infer_end = time.perf_counter()
 
-        logger.info("Model inference completed")
+        logger.info(f"Raw model output: {model_output}")
 
-        # ---- Validate model output ----
-        validate_model_output(model_output)
+        #  STEP 1: Try parsing JSON safely
+        try:
+            parsed_output = json.loads(model_output)
+        except json.JSONDecodeError:
+            # Model returned plain text → return directly
+            logger.info("Model returned plain text response")
+            return {
+                "response": model_output
+            }
+
+        action = parsed_output.get("action")
+        model_query = parsed_output.get("query")
+
+        #  STEP 2: Handle message-type responses
+        if action == "message":
+            logger.info("Model returned conversational response")
+            return {
+                "response": model_query
+            }
+
+        #  STEP 3: Basic safety checks
+        if not action or not model_query:
+            logger.warning("Missing action or query in model output")
+            return {
+                "response": "Invalid model response format."
+            }
+
+        #  STEP 4: Allow only SELECT queries
+        if not re.match(r"^\s*select\b", model_query, re.IGNORECASE):
+            logger.warning("Blocked non-SELECT query attempt")
+            return {
+                "response": "Only SELECT queries are allowed."
+            }
+
+        # ---- Validate SQL ----
+        validate_model_output(model_query)
 
         # ---- Execute query ----
         exec_start = time.perf_counter()
-
-        db_result = execute_query(
-            model_query,
-            action
-        )
+        db_result = execute_query(model_query, action)
         exec_end = time.perf_counter()
 
         total_end = time.perf_counter()
@@ -82,7 +101,9 @@ async def query_endpoint(request: QueryRequest):
             f"Exec: {exec_end - exec_start:.4f}s | "
             f"Total: {total_end - total_start:.4f}s"
         )
-        
+    
+    
+
         return {
             "response": json.dumps(db_result),
             "timing": {
@@ -108,3 +129,9 @@ async def query_endpoint(request: QueryRequest):
     except Exception as e:
         logger.exception("Unexpected server error")
         raise HTTPException(status_code=500, detail="Internal server error")
+    
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("main:app", host="0.0.0.0", port=8000)

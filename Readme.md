@@ -9,15 +9,10 @@ Average inference latency: ~5–10 seconds (local Gemma 3 4B deployment)
 
 ## Business Problems SQLSense AI Solves
 
-### 1.Reduces Data Access Bottlenecks
-Non-technical stakeholders (sales, marketing, ops) often rely on data teams for simple SQL queries.
+### 1.Reduces Engineering Interruptions
 
-This creates:
-- Delays  
-- Repetitive workload  
-- Context switching for engineers
-
-SQLSense AI allows safe self-service querying while enforcing read-only restrictions.
+In many teams, simple data requests require developer intervention.
+This project demonstrates how a guarded LLM layer can safely enable self-service read-only SQL queries without exposing destructive operations.
 
 ### 2. Prototype for AI-Augmented Internal Tools
 
@@ -81,11 +76,6 @@ This design ensures separation of concerns and modular structure.
 - LLM-based Natural Language to SQL conversion
 - Managed inference latency (5–10 seconds)
 
-### DevOps
-- Docker
-- GitHub Actions (CI)
-- Render deployment (for demo)
-
 ---
 
 ## 📂 Project Structure
@@ -148,32 +138,6 @@ http://127.0.0.1:8000
 
 ---
 
-## 🐳 Docker Deployment
-
-Build:
-
-```bash
-docker build -t sqlsense-ai .
-```
-
-Run:
-
-```bash
-docker run -p 8000:8000 sqlsense-ai
-```
-
----
-
-## 🌐 Deployment
-
-This project can be deployed using:
-
-- GitHub Actions (CI pipeline)
-- Render (for hosted demo)
-- Docker containerization for consistent environment replication
-
----
-
 ## 🔒 Security Considerations
 
 - Query action classification (read vs write)
@@ -189,6 +153,7 @@ This project can be deployed using:
 ![Dashboard screenshot](assets/image1.png)
 ![Dashboard screenshot](assets/image2.png)
 ![Dashboard screenshot](assets/image3.png)
+
 ---
 
 ## 🔮 Future Improvements
