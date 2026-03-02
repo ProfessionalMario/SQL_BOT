@@ -32,6 +32,7 @@ class QueryResponse(BaseModel):
 async def root(request: Request):
     return templates.TemplateResponse("home3.html", {"request": request})
 
+
 @app.post("/query", response_model=QueryResponse)
 async def query_endpoint(request: QueryRequest):
     try:

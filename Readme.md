@@ -1,9 +1,37 @@
 # SQLSense AI  
 ### AI-Powered Natural Language to SQL Engine
 
-SQLSense AI is an end-to-end full-stack application that converts natural language queries into executable SQL statements using a Large Language Model (LLM), executes them securely, and dynamically renders structured results in a web interface.
+SQLSense AI is an end-to-end AI system that converts natural language prompts into executable SQL queries using a locally deployed LLM (Gemma 3 4B).
 
-This project demonstrates real-world AI integration, backend validation, secure query execution, and dynamic frontend rendering with managed inference latency (5–10 seconds).
+The system includes secure query validation, read/write classification, PostgreSQL integration, caching, schema-aware prompting, structured JSON formatting, and a lightweight frontend interface.
+
+Average inference latency: ~5–10 seconds (local Gemma 3 4B deployment)
+
+## Business Problems SQLSense AI Solves
+
+### 1.Reduces Data Access Bottlenecks
+Non-technical stakeholders (sales, marketing, ops) often rely on data teams for simple SQL queries.
+
+This creates:
+- Delays  
+- Repetitive workload  
+- Context switching for engineers
+
+SQLSense AI allows safe self-service querying while enforcing read-only restrictions.
+
+### 2. Prototype for AI-Augmented Internal Tools
+
+This architecture can be extended to:
+
+    -CRM systems
+
+    -ERP systems
+
+    -BI tools
+
+    -Internal admin dashboards
+
+It demonstrates how to safely integrate LLMs into existing data infrastructure.
 
 ---
 
@@ -33,7 +61,7 @@ User Input
 → Structured JSON Response  
 → Dynamic Table Rendering  
 
-This design ensures separation of concerns and production-style architecture.
+This design ensures separation of concerns and modular structure.
 
 ---
 
@@ -156,18 +184,11 @@ This project can be deployed using:
 
 ---
 
-## 📸 Demo
+## 📸 Application Preview
 
-_Add screenshot here_
-
-```
-![alt text](SQL_BOT\assets\image.png)
-
-![alt text](SQL_BOT\assets\image-1.png)
-
-![alt text](SQL_BOT\assets\image.png)
-```
-
+![Dashboard screenshot](assets/image1.png)
+![Dashboard screenshot](assets/image2.png)
+![Dashboard screenshot](assets/image3.png)
 ---
 
 ## 🔮 Future Improvements
